@@ -1,0 +1,28 @@
+# Python Virtual Environment
+venv/
+ENV/
+.venv/
+
+# Pytest & Cache files
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Playwright Reports & Artifacts
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+recordings/
+videos/
+screenshots/
+
+# IDE Settings (IntelliJ / PyCharm)
+.idea/
+*.iml
+
+# Test Data (To protect sensitive strings/credentials)
+data/registration_data.yaml
