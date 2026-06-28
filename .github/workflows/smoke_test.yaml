@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Smoke Suite via Isolated Tox Worker
         run: |
-          tox -e py${{ matrix.python-version }} -- -v
+          tox -e py$(echo ${{ matrix.python-version }} | tr -d '.') -- -v
 
       - name: Archive Test Run Artifacts & Screenshots (On Failure Only)
         if: failure()
