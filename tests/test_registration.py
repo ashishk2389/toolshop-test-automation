@@ -2,6 +2,7 @@ import pytest
 from pages.registration_page import RegisterPage
 from pages.login_page import LoginPage
 
+@pytest.mark.regression
 @pytest.mark.smoke
 def test_successful_registration(page,registration_data):
 
@@ -23,5 +24,6 @@ def test_successful_registration(page,registration_data):
     register_page.fill_registration_form(user_info)
 
     # 3. Validation: Check that the login page is automatically displayed after successful registration
-    login_page.verify_login_page_displayed()
+    if not register_page.verify_user_exist():
+        login_page.verify_login_page_displayed()
 

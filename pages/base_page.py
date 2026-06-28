@@ -1,3 +1,5 @@
+import re
+
 from playwright.sync_api import Page, expect
 
 
@@ -44,3 +46,13 @@ class BasePage:
 
     def verify_visible(self, locator):
         expect(locator).to_be_visible()
+
+    def wait_for_authentication(self):
+        # Wait until authentication redirect is completed
+        expect(self.page).not_to_have_url(
+            re.compile(".*/auth/login.*"),
+            timeout=15000
+        )
+
+        # Wait until page is loaded
+        self.page.wait_for_load_state("networkidle")

@@ -2,7 +2,7 @@ import pytest
 from pages.login_page import LoginPage
 from pages.my_account_page import AccountPage
 
-@pytest.mark.smoke
+@pytest.mark.regression
 def test_my_account_dashboard_navigation(page, registration_data):
     """
     Test Case: Verify a logged-in user can successfully interact with

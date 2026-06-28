@@ -1,7 +1,7 @@
 import pytest
 from pages.login_page import LoginPage
 
-@pytest.mark.smoke
+@pytest.mark.regression
 def test_user_login(page,registration_data):
 
 

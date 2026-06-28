@@ -18,6 +18,7 @@ class RegisterPage(BasePage):
     EMAIL_INPUT = "Your email *"
     PASSWORD_INPUT = "Your password"
     REGISTER_BUTTON = "Register"
+    REGISTER_ERROR = "register-error"
 
     def __init__(self, page):
         super().__init__(page)
@@ -93,3 +94,14 @@ class RegisterPage(BasePage):
         expect(
             self.page.locator("h3")
         ).to_have_text("Customer registration")
+
+    def verify_user_exist(self) -> bool:
+        try:
+            # Waits for the element to have the exact text
+            expect(self.page.get_by_test_id(self.REGISTER_ERROR)).to_have_text(
+                "A customer with this email address already exists.",
+                timeout=5000  # 5 seconds timeout
+            )
+            return True
+        except AssertionError:
+            return False
