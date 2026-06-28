@@ -1,6 +1,8 @@
 from pages.base_page import BasePage
 from playwright.sync_api import expect
 
+from pages.registration_page import RegisterPage
+
 
 class LoginPage(BasePage):
 
@@ -8,6 +10,7 @@ class LoginPage(BasePage):
     EMAIL_INPUT = "Your email"
     PASSWORD_INPUT = "Your password"
     LOGIN_BUTTON = "Login"
+    LOGIN_ERROR = "login-error"
     def __init__(self, page):
         super().__init__(page)
 
@@ -29,6 +32,14 @@ class LoginPage(BasePage):
         self.enter_email(user_details.get("email"))
         self.enter_password(user_details.get("password"))
         self.click_login()
+        #register if login fails
+        if self.page.get_by_test_id(self.LOGIN_ERROR).is_visible():
+            register_page = RegisterPage(self.page)
+            register_page.navigateToRegisterPage()
+            register_page.fill_registration_form(user_details)
+            self.login(user_details)
+        self.wait_for_authentication()
+
 
     def navigateToLoginPage(self):
         self.navigate("https://practicesoftwaretesting.com/auth/login")
