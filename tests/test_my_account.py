@@ -44,3 +44,7 @@ def test_my_account_dashboard_navigation(page, registration_data):
     account_page.verify_messages_button_working()
     page.go_back()
     account_page.verify_account_page_loaded()
+
+    #shadow dom piercing
+    account_page.verify_chat_widget_integration_shadow_dom_piercing()
+

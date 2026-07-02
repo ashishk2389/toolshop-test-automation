@@ -20,6 +20,10 @@ class AccountPage(BasePage):
         self.profile_button = page.get_by_role("button", name="Profile")
         self.invoices_button = page.get_by_role("button", name="Invoices")
         self.messages_button = page.get_by_role("button", name="Messages")
+        self.testing_guide = page.get_by_role("button", name=" Testing Guide ")
+        self.bug_hunting = page.get_by_role("button", name=" 🐛 Bug Hunting ")
+        self.chat_toggle = page.locator("[data-test='chat-toggle']")
+        self.chat_window = page.locator("[data-test='chat-window']")
 
 
     # ==========================================
@@ -81,3 +85,21 @@ class AccountPage(BasePage):
         """Clicks the Messages link and verifies the page title changes to 'Messages'."""
         self.click_messages()
         expect(self.page_title).to_have_text("Messages")
+    def verify_testing_guide_wokring(self):
+        #click on the testing  guidde
+        self.testing_guide.click()
+
+    def verify_chat_widget_integration_shadow_dom_piercing(self):
+        self.chat_toggle.click()
+        expect(self.chat_window).to_contain_text(' Hi! How can I help you today? ')
+
+    def verify_iframe_piercing(self):
+        self.bug_hunting.click()
+        with self.page.context.expect_page() as new_page_info:
+            self.bug_hunting.click()
+        new_tab = new_page_info.value
+        new_tab.wait_for_load_state()
+        expect(new_tab).to_have_url('https://with-bugs.practicesoftwaretesting.com/#/?bug-hunting=true')
+        iframe_count = self.page.locator("iframe").count()
+        print(f"📍 Found {iframe_count} iframe(s) on the current page")
+

@@ -26,3 +26,4 @@ screenshots/
 
 # Test Data (To protect sensitive strings/credentials)
 data/registration_data.yaml
+traces
