@@ -36,14 +36,11 @@ def test_header_identity_and_navigation_targets(logged_in_home_page, page):
     """
     home = logged_in_home_page
 
-    # Logged-In Session State Assertion: Assert 'Sign In' link is not visible
-    # and confirm the profile dropdown menu explicitly matches the user name anchor
-    user_menu = page.get_by_test_id(home._nav_user_menu)
-    expect(user_menu).to_contain_text("Jane Doe")
-    expect(page.get_by_test_id("nav-sign-in")).not_to_be_visible()
+    # Logged-In Session State Assertion: Assert the user's name appears in the header
+    home.verify_user_signed_in("Jane Doe")
 
     # Navigation Targets: Validate clicking the brand logo correctly forces grid reloads
-    page.get_by_test_id(home._nav_home).click()
+    home.click_nav_home()
     expect(page).to_have_url(re.compile(r"https://practicesoftwaretesting.com/?"))
 
 
@@ -64,7 +61,7 @@ def test_search_functionality_and_filter_reset(logged_in_home_page, page):
     page.wait_for_timeout(1000)  # Short pause for asynchronous grid rendering threshold
 
     # Collect and assert that every card item name includes the substring 'Hammer'
-    product_names = page.get_by_test_id(home._product_name).all_text_contents()
+    product_names = home.get_displayed_product_names()
     assert len(product_names) > 0, "Search query returned no products."
     for name in product_names:
         assert "hammer" in name.lower(), f"Product text '{name}' did not match query string 'Hammer'."
@@ -73,8 +70,8 @@ def test_search_functionality_and_filter_reset(logged_in_home_page, page):
     home.reset_search_filters()
 
     # Verify input text field resets to an empty string and global cards populate back
-    expect(page.get_by_test_id(home._search_input)).to_have_value("")
-    all_products_count = page.locator(home._product_grid_cards).count()
+    assert home.get_search_input_value() == ""
+    all_products_count = home.count_displayed_products()
     assert all_products_count > len(product_names), "Product catalog layout grid failed to reset."
 
 
@@ -96,12 +93,7 @@ def test_out_of_stock_attributes_and_eco_badges(logged_in_home_page, page):#not 
 
     # Environmental Badge Verification: Verify visible product cards contain a CO2:
     # badge framework component with an active score tier highlighted
-    first_card = page.locator(home._product_grid_cards).first
-    eco_pill = first_card.locator(home._product_eco_badge)
-    expect(eco_pill).to_be_visible()
-
-    # Ensure one of the valid ratings (A-E) is currently highlighted active
-    pill_text = eco_pill.text_content().strip()
+    pill_text = home.get_first_product_eco_badge_text()
     assert any(tier in pill_text for tier in ["A", "B", "C", "D", "E"]), f"Unexpected Eco badge score layout: {pill_text}"
 
 
@@ -114,11 +106,11 @@ def test_dynamic_sidebar_filters_and_price_sorting(logged_in_home_page, page):#n
     home = logged_in_home_page
 
     # Dynamic Sidebar Filter Counts: Toggle unique brand checkbox parameters
-    initial_count = page.locator(home._product_grid_cards).count()
+    initial_count = home.count_displayed_products()
     home.filter_by_brand("ForgeFlex Tools")
     page.wait_for_timeout(1000)
 
-    filtered_count = page.locator(home._product_grid_cards).count()
+    filtered_count = home.count_displayed_products()
     assert filtered_count != initial_count, "Catalog display layout did not dynamically update counts."
 
     # Ascending/Descending Array Ordering: Select price sorting dropdown rule
@@ -144,8 +136,7 @@ def test_pagination_state_boundaries_and_grid_reloads(logged_in_home_page, page)
     home = logged_in_home_page
 
     # Default State Boundary: Confirm page number item '1' is explicitly flagged as the active element
-    first_page_item = page.locator("li.page-item", has_text="1")
-    expect(first_page_item).to_have_class(re.compile(r"\bactive\b"))
+    home.verify_pagination_page_active("1")
 
     # Capture standard text snapshot of initial index titles
     initial_first_element = home.get_first_element()

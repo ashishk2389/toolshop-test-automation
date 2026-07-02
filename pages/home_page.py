@@ -41,6 +41,8 @@ class HomePage(BasePage):
     _pagination_container = "ul.pagination"
     _pagination_page_item = "li.page-item"
 
+    _nav_sign_in = "nav-sign-in"
+
     # --- Page Action & Verification Methods ---
 
     def verify_home_page_loaded(self):
@@ -57,6 +59,41 @@ class HomePage(BasePage):
 
     def verify_categories_link_working(self):
         self.page.get_by_role("button", name=self.CATEGORIES).click()
+
+    def verify_user_signed_in(self, user_name: str):
+        """Verify the user menu shows the current logged-in user and hides sign-in."""
+        expect(self.page.get_by_test_id(self._nav_user_menu)).to_contain_text(user_name)
+        expect(self.page.get_by_test_id(self._nav_sign_in)).not_to_be_visible()
+
+    def click_nav_home(self):
+        """Click the home navigation button in the page header."""
+        self.page.get_by_test_id(self._nav_home).click()
+
+    def get_displayed_product_names(self) -> list:
+        """Return all visible product names displayed in the current catalog grid."""
+        return self.page.get_by_test_id(self._product_name).all_text_contents()
+
+    def get_search_input_value(self) -> str:
+        """Read the current value of the search input field."""
+        return self.page.get_by_test_id(self._search_input).input_value()
+
+    def count_displayed_products(self) -> int:
+        """Count how many product cards are currently visible on the page."""
+        return self.page.locator(self._product_grid_cards).count()
+
+    def get_first_product_eco_badge_text(self) -> str:
+        """Return the eco badge text label for the first visible product card."""
+        eco_badge = self.page.locator(self._product_grid_cards).first.locator(self._product_eco_badge)
+        expect(eco_badge).to_be_visible()
+        return eco_badge.text_content().strip()
+
+    def verify_pagination_page_active(self, page_number: str):
+        """Assert that a specific pagination item is currently marked as active."""
+        page_item = self.page.locator(self._pagination_container).locator(
+            self._pagination_page_item,
+            has_text=page_number
+        )
+        expect(page_item).to_have_class(re.compile(r"\bactive\b"))
 
     # --- New Functionality: Search & Sort Frameworks ---
 

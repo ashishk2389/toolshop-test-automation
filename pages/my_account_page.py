@@ -93,13 +93,20 @@ class AccountPage(BasePage):
         self.chat_toggle.click()
         expect(self.chat_window).to_contain_text(' Hi! How can I help you today? ')
 
-    def verify_iframe_piercing(self):
-        self.bug_hunting.click()
+    def open_bug_hunting_tab(self):
+        """Open the bug hunting link in a new tab and return the new page object."""
         with self.page.context.expect_page() as new_page_info:
             self.bug_hunting.click()
         new_tab = new_page_info.value
         new_tab.wait_for_load_state()
+        return new_tab
+
+    def verify_bug_hunting_url(self, new_tab):
+        """Validate that the bug hunting tab opened to the expected external URL."""
         expect(new_tab).to_have_url('https://with-bugs.practicesoftwaretesting.com/#/?bug-hunting=true')
-        iframe_count = self.page.locator("iframe").count()
-        print(f"📍 Found {iframe_count} iframe(s) on the current page")
+
+    def verify_iframe_piercing(self):
+        new_tab = self.open_bug_hunting_tab()
+        self.verify_bug_hunting_url(new_tab)
+        new_tab.close()
 

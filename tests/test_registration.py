@@ -32,8 +32,10 @@ def test_successful_registration(page, registration_data):
 
     # Soft Assertion 2: Check that a registration success alert/toast message isn't an error
     # (Assuming there's a dynamic alert element box displaying text status)
-    expect.soft(page.locator(".alert"), "Check for unexpected error messages").not_to_contain_text(
-        "invalid")
+    register_page.verify_no_error_alert()
+
+    # Verify that registration has left the registration route
+    register_page.verify_registration_url_changed()
 
     # -------------------------------------------------------------
     # HARD ASSERTION (Your original condition)
