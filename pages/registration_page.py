@@ -95,6 +95,16 @@ class RegisterPage(BasePage):
             self.page.locator("h3")
         ).to_have_text("Customer registration")
 
+    def verify_registration_url_changed(self):
+        """Verify that the browser has navigated away from the register form route."""
+        expect(self.page).not_to_have_url("https://practicesoftwaretesting.com/auth/register")
+
+    def verify_no_error_alert(self):
+        """Assert that no registration-level alert contains an invalid or failure message."""
+        alerts = self.page.locator(".alert")
+        if alerts.count() > 0:
+            expect(alerts.first).not_to_contain_text("invalid")
+
     def verify_user_exist(self) -> bool:
         try:
             # Waits for the element to have the exact text

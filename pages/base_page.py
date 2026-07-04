@@ -34,6 +34,11 @@ class BasePage:
         return locator.is_visible()
 
 
+    def navigate_back(self):
+        """Navigate back to the previous browser history entry."""
+        self.page.go_back()
+
+
     # Wait
     def wait_for_page_load(self):
         self.page.wait_for_load_state("networkidle")

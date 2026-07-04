@@ -29,6 +29,8 @@ class ProfilePage(BasePage):
     def update_profile(self, profile_data: dict):
         """
         Fills out the profile form fields and submits the updates.
+
+        Supports alternate keys for address and postal code values.
         """
         if "first_name" in profile_data:
             self.first_name_input.fill(profile_data["first_name"])
@@ -38,20 +40,26 @@ class ProfilePage(BasePage):
             self.phone_input.fill(profile_data["phone"])
         if "street" in profile_data:
             self.street_input.fill(profile_data["street"])
+        elif "address" in profile_data:
+            self.street_input.fill(profile_data["address"])
         if "city" in profile_data:
             self.city_input.fill(profile_data["city"])
         if "state" in profile_data:
             self.state_input.fill(profile_data["state"])
         if "country" in profile_data:
-            self.country_input.fill(profile_data["country"])
+            self.country_input.select_option(profile_data["country"])
         if "postal_code" in profile_data:
             self.postal_code_input.fill(profile_data["postal_code"])
+        elif "postcode" in profile_data:
+            self.postal_code_input.fill(profile_data["postcode"])
 
         self.update_profile_button.click()
 
     def verify_profile_details(self, expected_data: dict):
         """
         Validates that the input fields contain the expected information.
+
+        Accepts alternate key names for address and postal code verification.
         """
         if "first_name" in expected_data:
             expect(self.first_name_input).to_have_value(expected_data["first_name"])
@@ -63,6 +71,8 @@ class ProfilePage(BasePage):
             expect(self.phone_input).to_have_value(expected_data["phone"])
         if "street" in expected_data:
             expect(self.street_input).to_have_value(expected_data["street"])
+        elif "address" in expected_data:
+            expect(self.street_input).to_have_value(expected_data["address"])
         if "city" in expected_data:
             expect(self.city_input).to_have_value(expected_data["city"])
         if "state" in expected_data:
@@ -71,6 +81,8 @@ class ProfilePage(BasePage):
             expect(self.country_input).to_have_value(expected_data["country"])
         if "postal_code" in expected_data:
             expect(self.postal_code_input).to_have_value(expected_data["postal_code"])
+        elif "postcode" in expected_data:
+            expect(self.postal_code_input).to_have_value(expected_data["postcode"])
 
     def verify_update_success(self, expected_text: str = "Your profile is successfully updated!"):
         """
