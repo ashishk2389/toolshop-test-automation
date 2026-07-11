@@ -1,38 +1,33 @@
 import pytest
-from pages.login_page import LoginPage
+from playwright.sync_api import Page
 from pages.my_account_page import AccountPage
 
 @pytest.mark.regression
-def test_my_account_dashboard_navigation(page, registration_data):
+def test_my_account_dashboard_navigation(page: Page):
     """
-    Test Case: Verify a logged-in user can successfully interact with
+    Test Case: Verify an already authenticated user can successfully interact with
     the Favorites view, navigate back, and test the remaining tabs.
     """
 
-    # 1. Initialize Page Object Models
-    login_page = LoginPage(page)
+    # 1. Initialize the Page Object Model
     account_page = AccountPage(page)
 
-    # 2. Extract valid user credentials from fixture data
-    user_info = registration_data["valid_user"]
+    # 2. Navigate directly to the account page (since the session state is pre-loaded)
+    # Note: Replace this with your actual application dashboard or account URL string
+    account_page.navigateToMyAccountsPage()
 
-    # 3. Prerequisites: Navigate and log in to reach the Account Page
-    login_page.navigateToLoginPage()
-    login_page.verify_login_page_displayed()
-    login_page.login(user_info)
-
-    # 4. Step 1: Validate Account main landing page elements are correct
+    # 3. Step 1: Validate Account main landing page elements are correct
     account_page.verify_account_page_loaded()
     account_page.verify_account_menu_visible()
 
-    # 5. Step 2: Verify Favorites link works as expected
+    # 4. Step 2: Verify Favorites link works as expected
     account_page.verify_favorites_button_working()
 
-    # 6. Step 3: Navigate back to the main Account page and verify it reloaded
+    # 5. Step 3: Navigate back to the main Account page and verify it reloaded
     page.go_back()
     account_page.verify_account_page_loaded()
 
-    # 7. Step 4: Verify remaining sidebar navigation links are operational
+    # 6. Step 4: Verify remaining sidebar navigation links are operational
     account_page.verify_profile_button_working()
     page.go_back()
     account_page.verify_account_page_loaded()
@@ -45,6 +40,5 @@ def test_my_account_dashboard_navigation(page, registration_data):
     page.go_back()
     account_page.verify_account_page_loaded()
 
-    #shadow dom piercing
+    # Shadow DOM piercing validation
     account_page.verify_chat_widget_integration_shadow_dom_piercing()
-

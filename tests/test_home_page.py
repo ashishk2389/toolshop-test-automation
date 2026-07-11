@@ -11,12 +11,12 @@ def logged_in_home_page(page, registration_data):
     Setup fixture to handle user session authentication before executing catalog validations.
     Ensures that every test starts with an active session for 'Jane Doe'.
     """
-    login_page = LoginPage(page)
+    # login_page = LoginPage(page)
     home_page = HomePage(page)
     user_info = registration_data["valid_user"]
 
-    login_page.navigateToLoginPage()
-    login_page.login(user_info)
+    # login_page.navigateToLoginPage()
+    # login_page.login(user_info)
 
     home_page.navigateToHomePage()
     home_page.verify_home_page_loaded()

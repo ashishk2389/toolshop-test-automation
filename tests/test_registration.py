@@ -3,7 +3,6 @@ from playwright.sync_api import expect  # Ensure expect is imported
 from pages.registration_page import RegisterPage
 from pages.login_page import LoginPage
 
-@pytest.mark.regression
 @pytest.mark.smoke
 def test_successful_registration(page, registration_data):
 

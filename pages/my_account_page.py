@@ -46,7 +46,8 @@ class AccountPage(BasePage):
         """Clicks the Messages menu link."""
         self.messages_button.click()
 
-
+    def navigateToMyAccountsPage(self):
+        self.navigate("https://practicesoftwaretesting.com/account")
     # ==========================================
     #               VALIDATIONS
     # ==========================================
