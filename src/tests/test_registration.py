@@ -1,7 +1,7 @@
 import pytest
 from playwright.sync_api import expect  # Ensure expect is imported
-from pages.registration_page import RegisterPage
-from pages.login_page import LoginPage
+from src.pages.registration_page import RegisterPage
+from src.pages.login_page import LoginPage
 
 @pytest.mark.smoke
 def test_successful_registration(page, registration_data):

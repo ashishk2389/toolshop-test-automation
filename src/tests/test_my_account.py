@@ -1,6 +1,6 @@
 import pytest
 from playwright.sync_api import Page
-from pages.my_account_page import AccountPage
+from src.pages.my_account_page import AccountPage
 
 @pytest.mark.regression
 def test_my_account_dashboard_navigation(page: Page):

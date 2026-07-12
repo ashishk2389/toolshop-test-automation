@@ -7,7 +7,38 @@ class BasePage:
 
     def __init__(self, page: Page):
         self.page = page
+        self._asset_blocking_registered = False
+        self.block_assets_and_media()
 
+    def block_assets_and_media(self):
+        if getattr(self, "_asset_blocking_registered", False):
+            return
+
+        def should_block(route):
+            url = route.request.url.lower()
+
+            blocked_patterns = {
+                # Images
+                r'\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?|$)',
+                # Fonts
+                r'\.(?:woff2?|ttf|otf|eot)(?:\?|$)',
+                # Media files
+                r'\.(?:mp4|webm|ogg|m4a)(?:\?|$)',
+                # Analytics/Tracking
+                r'(?:google-analytics|gtag|analytics|googletagmanager)',
+                r'(?:facebook\.com/tr|doubleclick\.net|pixel\.facebook)',
+            }
+
+            return any(re.search(pattern, url) for pattern in blocked_patterns)
+
+        self.page.route("**/*", lambda route: (
+            route.abort()
+            if should_block(route)
+            else route.continue_()
+        ))
+        self._asset_blocking_registered = True
+
+    # ... existing methods ...
 
     # Navigation
     def navigate(self, url):

@@ -1,4 +1,4 @@
-from pages.base_page import BasePage
+from src.pages.base_page import BasePage
 from playwright.sync_api import Page, expect
 
 
@@ -6,22 +6,20 @@ class ProfilePage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
 
-        # --- Form Fields Locators (using get_by_test_data) ---
-        self.page_title = self.page.get_by_test_id("page-title")
-        # self.page_title = page.locator("[data-test='page-title']")
-        # self.first_name_input = page.locator('[data-test="first-name"]')
-        self.first_name_input = self.page.get_by_test_id("first-name")
-        self.last_name_input = self.page.get_by_test_id("last-name")
-        self.email_input = self.page.get_by_test_id("email")
-        self.phone_input = self.page.get_by_test_id("phone")
-        self.street_input = self.page.get_by_test_id("street")
-        self.postal_code_input = self.page.get_by_test_id("postal_code")
-        self.city_input = self.page.get_by_test_id("city")
-        self.state_input = self.page.get_by_test_id("state")
-        self.country_input = self.page.get_by_test_id("country")
+        # --- Form Fields Locators (using the current profile page markup) ---
+        self.page_title = self.page.get_by_role("heading", name="Profile")
+        self.first_name_input = self.page.locator("#first_name")
+        self.last_name_input = self.page.locator("#last_name")
+        self.email_input = self.page.locator("#email")
+        self.phone_input = self.page.locator("#phone")
+        self.street_input = self.page.locator("#street")
+        self.postal_code_input = self.page.locator("#postal_code")
+        self.city_input = self.page.locator("#city")
+        self.state_input = self.page.locator("#state")
+        self.country_input = self.page.locator("#country")
 
         # --- Action Buttons ---
-        self.update_profile_button = self.page.get_by_test_id("update-profile-submit")
+        self.update_profile_button = self.page.get_by_role("button", name="Update Profile")
 
         # --- Alerts / Messages (kept general if no data-test is present on alert) ---
         self.success_message = page.locator(".alert-success")
@@ -47,7 +45,7 @@ class ProfilePage(BasePage):
         if "state" in profile_data:
             self.state_input.fill(profile_data["state"])
         if "country" in profile_data:
-            self.country_input.select_option(profile_data["country"])
+            self.country_input.fill(profile_data["country"])
         if "postal_code" in profile_data:
             self.postal_code_input.fill(profile_data["postal_code"])
         elif "postcode" in profile_data:

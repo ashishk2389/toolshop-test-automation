@@ -1,6 +1,6 @@
 import pytest
-from pages.login_page import LoginPage
-from pages.my_account_page import AccountPage
+from src.pages.login_page import LoginPage
+from src.pages.my_account_page import AccountPage
 
 @pytest.mark.regression
 def test_delete_favorite_item_with_confirmation_dialog(page, registration_data):

@@ -1,11 +1,59 @@
+import base64
 import json
 import os
+import time
 import pytest
-from playwright.sync_api import Browser, BrowserContext,Playwright, APIRequestContext
+from playwright.sync_api import BrowserContext,Playwright, APIRequestContext, expect
 import yaml
-import json
 
 AUTH_STATE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "auth.json"))
+
+
+def _decode_jwt_payload(token: str):
+    """Decode a JWT payload without requiring external dependencies."""
+    if not token or token.count(".") != 2:
+        return None
+
+    payload_segment = token.split(".")[1]
+    padding = "=" * (-len(payload_segment) % 4)
+    try:
+        decoded = base64.urlsafe_b64decode(payload_segment + padding).decode("utf-8")
+        return json.loads(decoded)
+    except (ValueError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
+
+def _is_cached_auth_state_valid(auth_state_path: str) -> bool:
+    """Return True when auth.json contains a non-expired auth-token."""
+    if not os.path.exists(auth_state_path):
+        return False
+
+    try:
+        with open(auth_state_path, "r") as handle:
+            state = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return False
+
+    for origin in state.get("origins", []):
+        for item in origin.get("localStorage", []):
+            if item.get("name") != "auth-token":
+                continue
+
+            payload = _decode_jwt_payload(item.get("value", ""))
+            if not payload:
+                continue
+
+            exp = payload.get("exp")
+            if exp is None:
+                return True
+
+            try:
+                return int(time.time()) < int(exp)
+            except (TypeError, ValueError):
+                return False
+
+    return False
+
 
 # --- Native Plugin Configurations ---
 
@@ -15,6 +63,9 @@ def browser_context_args(browser_context_args, session_auth_state):
     Overriding the native plugin fixture.
     Injects the global JSON session state into every test automatically.
     """
+    if session_auth_state is None:
+        return browser_context_args
+
     return {
         **browser_context_args,
         "storage_state": session_auth_state
@@ -41,39 +92,67 @@ def pytest_runtest_makereport(item, call):
 
 @pytest.fixture(scope="session")
 def registration_data():
-    yaml_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "registration_data.yaml"))
+    yaml_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../..", "data", "registration_data.yaml"))
     with open(yaml_path, "r") as file:
         return yaml.safe_load(file)
 
 @pytest.fixture(scope="session")
-def session_auth_state(browser, registration_data) -> str:
+def session_auth_state(request, browser, registration_data):
     """
     Runs ONCE per test run using the plugin's native 'browser' instance.
-    Skips if auth.json already exists.
+    Skips the shared login flow for the dedicated login test so it performs its own UI login.
     """
-    from pages.login_page import LoginPage
+    from src.pages.login_page import LoginPage
 
-    if not os.path.exists(AUTH_STATE_PATH):
+    if os.getenv("SKIP_SESSION_AUTH_FOR_LOGIN") == "1":
+        print("\n🔐 [Setup] Skipping shared session login for test_login; login will run in the test itself.")
+        yield None
+        return
+
+    user_info = registration_data["valid_user"]
+
+    def _is_authenticated(page):
+        try:
+            return (
+                page.get_by_role("link", name="My account").is_visible(timeout=3000)
+                or page.get_by_text("Jane Doe", exact=True).is_visible(timeout=3000)
+            )
+        except Exception:
+            return False
+
+    if os.path.exists(AUTH_STATE_PATH):
+        print("\n⚡ [Setup] Validating cached session state from auth.json...")
+        if _is_cached_auth_state_valid(AUTH_STATE_PATH):
+            print("✅ [Setup] Cached session token is still valid.")
+            yield AUTH_STATE_PATH
+            return
+
+        print("⚠️ [Setup] Cached session state is stale or invalid. Re-authenticating...")
+        try:
+            os.remove(AUTH_STATE_PATH)
+        except OSError:
+            pass
+    else:
         print("\n🔑 [Setup] Session state not found. Running UI login authentication...")
 
-        # Uses the 'browser' fixture provided cleanly by the plugin
-        context = browser.new_context()
-        page = context.new_page()
+    context = browser.new_context()
+    page = context.new_page()
 
-        user_info = registration_data["valid_user"]
+    login_page = LoginPage(page)
+    login_page.navigateToLoginPage()
+    login_page.verify_login_page_displayed()
 
-        login_page = LoginPage(page)
-        login_page.navigateToLoginPage()
-        login_page.verify_login_page_displayed()
-        login_page.login(user_info)
+    # Perform login action with a fallback to register and retry if needed
+    login_page.login_with_fallback(user_info)
 
-        page.wait_for_load_state("networkidle")
-        context.storage_state(path=AUTH_STATE_PATH)
+    # Validate that the account area is visible after successful login
+    expect(page.get_by_role("heading", name="My account")).to_be_visible(timeout=10000)
 
-        context.close()
-        print("💾 [Setup] Session state captured successfully.")
-    else:
-        print("\n⚡ [Setup] Using cached session state from auth.json. Skipping login UI flow.")
+    page.wait_for_load_state("networkidle")
+    context.storage_state(path=AUTH_STATE_PATH)
+
+    context.close()
+    print("💾 [Setup] Session state captured successfully.")
 
     yield AUTH_STATE_PATH
     #

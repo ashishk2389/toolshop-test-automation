@@ -1,0 +1,28 @@
+# Test data for Customer Registration Page
+valid_user:
+  first_name: "Jane"
+  last_name: "Doe"
+  dob: "1995-08-15"
+  country: "IN"
+  postal_code: "1012 JS"
+  house_number: "42"
+  street: "Damrak"
+  city: "Amsterdam"
+  state: "North Holland"
+  phone: "0612345678"
+  email: "ashishk2389_1207_1@example.com"
+  password: "Ashi!!!2389"
+
+invalid_email_user:
+  first_name: "John"
+  last_name: "Smith"
+  dob: "1990-01-01"
+  country: "IN"
+  postal_code: "90210"
+  house_number: "12"
+  street: "Beverly Drive"
+  city: "Los Angeles"
+  state: "California"
+  phone: "5551234567"
+  email: "john.smith@invalid" # Testing validation error
+  password: "Password123"

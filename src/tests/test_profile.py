@@ -1,8 +1,6 @@
 import pytest
-from pages.profile_page import ProfilePage
-from pages.registration_page import RegisterPage
-from pages.login_page import LoginPage
-from playwright.sync_api import Page, expect
+from src.pages.profile_page import ProfilePage
+
 
 @pytest.mark.regression
 def test_profile(page, registration_data):

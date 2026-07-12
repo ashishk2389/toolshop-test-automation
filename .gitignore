@@ -22,8 +22,13 @@ screenshots/
 
 # IDE Settings (IntelliJ / PyCharm)
 .idea/
+.vscode/
 *.iml
 
+# macOS files
+.DS_Store
+
 # Test Data (To protect sensitive strings/credentials)
-data/registration_data.yaml
+src/tests/auth.json
 traces
+junk

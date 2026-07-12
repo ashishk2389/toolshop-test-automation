@@ -1,8 +1,7 @@
 import pytest
 
-from pages.login_page import LoginPage
-from pages.my_account_page import AccountPage
-from playwright.sync_api import expect
+from src.pages.my_account_page import AccountPage
+
 
 @pytest.mark.regression
 def test_new_tab(page, registration_data):
@@ -14,10 +13,9 @@ def test_new_tab(page, registration_data):
     # 2. Extract valid user credentials from fixture data
     user_info = registration_data["valid_user"]
 
-    # 3. Prerequisites: Navigate and log in to reach the Account Page
-    # login_page.navigateToLoginPage()
-    # login_page.verify_login_page_displayed()
-    # login_page.login(user_info)
+    # 3. Prerequisites: Navigate to the authenticated account page
+    account_page.navigateToMyAccountsPage()
+    page.wait_for_load_state("networkidle")
 
     # 4. Verify Account main landing page elements are correct
     account_page.verify_account_page_loaded()
