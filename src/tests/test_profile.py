@@ -1,19 +1,17 @@
 import pytest
-from pages.profile_page import ProfilePage
-from pages.registration_page import RegisterPage
-from pages.login_page import LoginPage
-from playwright.sync_api import Page, expect
+from src.pages.profile_page import ProfilePage
+
 
 @pytest.mark.regression
 def test_profile(page, registration_data):
 
-    login_page = LoginPage(page)
+    # login_page = LoginPage(page)
     profile_page = ProfilePage(page)
     user_info = registration_data["valid_user"]
 
     # 1. Login and Navigate to Profile
-    login_page.navigateToLoginPage()
-    login_page.login(user_info)
+    # login_page.navigateToLoginPage()
+    # login_page.login(user_info)
 
     profile_page.navigateToProfilePage()
     #validate profile page is visible

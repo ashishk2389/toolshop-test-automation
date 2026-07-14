@@ -1,10 +1,9 @@
 import pytest
 from playwright.sync_api import expect  # Ensure expect is imported
-from pages.registration_page import RegisterPage
-from pages.login_page import LoginPage
+from src.pages.registration_page import RegisterPage
+from src.pages.login_page import LoginPage
 
 @pytest.mark.regression
-@pytest.mark.smoke
 def test_successful_registration(page, registration_data):
 
     login_page = LoginPage(page)
@@ -14,7 +13,7 @@ def test_successful_registration(page, registration_data):
     user_info = registration_data["valid_user"]
 
     # Navigate to the registration page
-    register_page.navigateToRegisterPage()
+    register_page.navigate_to_register_page()
 
     # Verify that the registration page is displayed
     register_page.verify_register_page_displayed()
