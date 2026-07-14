@@ -15,7 +15,7 @@ def test_user_login(page, registration_data):
     user_info = registration_data["valid_user"]
 
     # Navigate to the login page
-    login_page.navigateToLoginPage()
+    login_page.navigate_to_login_page()
 
     # Verify that the login page is displayed
     login_page.verify_login_page_displayed()
